@@ -1,0 +1,12 @@
+## .env example
+```env
+# Google Gemini API
+GOOGLE_API_KEY=your_google_api_key_here
+
+# Tavily Search API  
+TAVILY_API_KEY=your_tavily_api_key_here
+
+# Optional: LangSmith tracing
+LANGSMITH_API_KEY=your_langsmith_key
+LANGSMITH_TRACING=true
+```
