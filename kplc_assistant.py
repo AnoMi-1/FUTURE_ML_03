@@ -11,23 +11,49 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
 from langgraph.checkpoint.memory import InMemorySaver  
 from langchain_huggingface import HuggingFaceEmbeddings
-
+import streamlit as st
 
 # Load environment variables
 load_dotenv()
 
 # API keys validation
 
-# google_api_key = os.getenv('GOOGLE_API_KEY')
-# if not google_api_key:
-#     raise ValueError("GOOGLE_API_KEY not found in .env file.")
+# Dynamic Model Config (Streamlit Cloud + Local .env) 
+model_provider = st.secrets.get("model_provider", os.getenv('model_provider', 'openai'))
 
-openai_api_key = os.getenv('OPENAI_API_KEY')
-if not openai_api_key:
-    raise ValueError("OPENAI_API_KEY not found in .env file.")
+# Get API key based on provider (st.secrets OR os.getenv fallback)
+if model_provider == 'openai':
+    api_key = st.secrets.get("openai_api_key") or os.getenv('openai_api_key')
+    if not api_key:
+        st.error(" Missing OpenAI API Key! Add to Streamlit Cloud Secrets or .env file.")
+        st.stop()
+    model_name = "gpt-4o-mini"   
+    
+elif model_provider == 'google_genai':
+    api_key = st.secrets.get("google_api_key") or os.getenv('google_api_key')
+    if not api_key:
+        st.error(" Missing Google API Key! Add to Streamlit Cloud Secrets or .env file.")
+        st.stop()
+    model_name = "gemini-2.5-flash"
+    
+else:
+    st.error(f"Unsupported model_provider: {model_provider}")
+    st.stop()
 
-if not os.getenv("TAVILY_API_KEY"):
-    raise ValueError("TAVILY_API_KEY not found in .env file.")
+# Validate Tavily (always required)
+tavily_api_key = st.secrets.get("tavily_api_key") or os.getenv("tavily_api_key")
+if not tavily_api_key:
+    st.error("Missing tavily_api_key! Add to Streamlit Cloud Secrets or .env file.")
+    st.stop()
+
+# Dynamic Model Initialization
+model = init_chat_model(
+    model=model_name,
+    model_provider=model_provider,
+    api_key=api_key  # Works for both OpenAI and Google
+)
+
+
 
 # Initialize search tool (KPLC domain only)
 search_tool = TavilySearch(
