@@ -1,4 +1,27 @@
-venv/
-.venv/
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+kplc_env/
 .env
+
+# ChromaDB
+kplc_chroma_db/
+chroma_langchain_db/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PDFs (don't commit sensitive docs)
+kplc_document.pdf
+*.pdf
