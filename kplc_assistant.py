@@ -41,8 +41,8 @@ else:
     st.stop()
 
 # Validate Tavily (always required)
-tavily_api_key = st.secrets.get("tavily_api_key") or os.getenv("tavily_api_key")
-if not tavily_api_key:
+TAVILY_API_KEY  = st.secrets.get("TAVILY_API_KEY ") or os.getenv("TAVILY_API_KEY ")
+if not TAVILY_API_KEY :
     st.error("Missing tavily_api_key! Add to Streamlit Cloud Secrets or .env file.")
     st.stop()
 
