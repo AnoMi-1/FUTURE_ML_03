@@ -1,5 +1,5 @@
 import streamlit as st
-from kplc_assistant import agent, run_kplc_chat  # Import your existing agent
+from kplc_assistant import agent, run_kplc_chat 
 
 # Set page configurations
 st.set_page_config(page_title="KPLC Assistant", page_icon="💡", layout="wide")

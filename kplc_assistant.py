@@ -3,80 +3,49 @@ import uuid
 from dotenv import load_dotenv
 from langchain_tavily import TavilySearch
 from langchain.chat_models import init_chat_model
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.tools import tool
 from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
-from langgraph.checkpoint.memory import InMemorySaver  
-from langchain_huggingface import HuggingFaceEmbeddings
-import streamlit as st
+from langgraph.checkpoint.memory import InMemorySaver
+ 
+
 
 # Load environment variables
 load_dotenv()
 
-# API keys validation
+# API keys with proper validation
+google_api_key = os.getenv('GOOGLE_API_KEY')
+if not google_api_key:
+    raise ValueError("GOOGLE_API_KEY not found in .env file.")
 
-# Dynamic Model Config (Streamlit Cloud + Local .env) 
-model_provider = st.secrets.get("model_provider", os.getenv('model_provider', 'openai'))
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if not openai_api_key:
+    raise ValueError("OPENAI_API_KEY not found in .env file.")
 
-# Get API key based on provider (st.secrets OR os.getenv fallback)
-if model_provider == 'openai':
-    api_key = st.secrets.get("OPENAI_API_KEY") or os.getenv('OPENAI_API_KEY')
-    if not api_key:
-        st.error(" Missing OpenAI API Key! Add to Streamlit Cloud Secrets or .env file.")
-        st.stop()
-    model_name = "gpt-4o-mini"   
-    
-elif model_provider == 'google_genai':
-    api_key = st.secrets.get("GOOGLE_API_KEY") or os.getenv('GOOGLE_API_KEY')
-    if not api_key:
-        st.error(" Missing Google API Key! Add to Streamlit Cloud Secrets or .env file.")
-        st.stop()
-    model_name = "gemini-2.5-flash"
-    
-else:
-    st.error(f"Unsupported model_provider: {model_provider}")
-    st.stop()
+if not os.getenv("TAVILY_API_KEY"):
+    raise ValueError("TAVILY_API_KEY not found in .env file.")
 
-# Validate Tavily (always required)
-TAVILY_API_KEY  = st.secrets.get("TAVILY_API_KEY") or os.getenv("TAVILY_API_KEY")
-if not TAVILY_API_KEY :
-    st.error("Missing tavily_api_key! Add to Streamlit Cloud Secrets or .env file.")
-    st.stop()
-
-# Dynamic Model Initialization
-model = init_chat_model(
-    model=model_name,
-    model_provider=model_provider,
-    api_key=api_key  # Works for both OpenAI and Google
-)
-
-
-
-# Initialize search tool (KPLC domain only)
+# Initialize search tool 
 search_tool = TavilySearch(
-    # tavily_api_key=TAVILY_API_KEY, 
     max_results=5,
-    topic="general", 
+    topic="general",
     include_domains=['kplc.co.ke'],
 )
 
-# Initialize Google model 
+# Initialize model and embeddings
 # model = init_chat_model("gemini-2.5-flash", model_provider="google_genai")
 
-# Initialize OpenAI model 
-model = init_chat_model("gpt-4.1-mini", model_provider="openai")
+model = init_chat_model("gpt-4o-mini", model_provider="openai")
 
-# Hugging Face embedding
-embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
-# Google embedding
-# embeddings = GoogleGenerativeAIEmbeddings(
-#     model="models/text-embedding-004", 
-#     google_api_key=google_api_key
-# )
+embeddings = GoogleGenerativeAIEmbeddings(
+    model="models/text-embedding-004", 
+    google_api_key=google_api_key
+)
 
 # Create persistent vector store
 vector_store = Chroma(
@@ -85,7 +54,7 @@ vector_store = Chroma(
     persist_directory="./kplc_chroma_db",
 )
 
-# Load and process KPLC PDF 
+# Load and process PDF
 file_path = "./kplc_document.pdf"  # Replace with your actual PDF path
 try:
     loader = PyPDFLoader(file_path, mode="page")
@@ -109,27 +78,30 @@ except FileNotFoundError:
     exit(1)
 
 # RAG retrieval tool
-@tool  # Remove response_format entirely
+@tool  
 def retrieve_context(query: str):
     """Retrieve relevant KPLC information from uploaded documents."""
     retrieved_docs = vector_store.similarity_search(query, k=2)
-    return "\n\n".join(
+    context = "\n\n".join(
         f"Source: {doc.metadata}\nContent: {doc.page_content}"
         for doc in retrieved_docs
     )
+    return context  # ✅ Simple string works perfectly
 
-# KPLC-specific agent prompt
+
+# Agent prompt
 prompt = '''
 You are a friendly KPLC customer support assistant. 😊 
 
 INSTRUCTIONS:
-1. Use ONLY the retrieved context or KPLC website info to answer
-2. NEVER print raw metadata, source info, or document chunks
-3. Give concise, helpful answers in your own words
-4. If context doesn't answer the question, say "I don't know" 
+1. FIRST check retrieved context from KPLC documents
+2. If context insufficient, use search tool for kplc.co.ke info
+3. NEVER print raw metadata, source info, or document chunks
+4. Give concise, helpful answers in your own words  
 5. End with "Visit kplc.co.ke for latest info!" when appropriate
 
 CONTEXT: {context}
+
 
 EXAMPLES:
 [User]: I'd like to install electricity at my place
@@ -140,7 +112,6 @@ EXAMPLES:
 
 Say "I don't know" if unclear.
 '''
-
 
 # Initialize agent with memory and summarization
 checkpointer = InMemorySaver()
@@ -158,11 +129,10 @@ agent = create_agent(
     ],
 )
 
-# Chat loop
+# Dynamic chat loop
 def run_kplc_chat():
     """Interactive chat with persistent memory."""
-    # Unique session id
-    session_id = str(uuid.uuid4())  
+    session_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": f"kplc_session_{session_id}"}}
     
     print("🔌 KPLC Assistant Online! Ask about tariffs, meters, or services.")
@@ -180,17 +150,22 @@ def run_kplc_chat():
                 print("Please enter a question about KPLC services.\n")
                 continue
             
+            # response = agent.invoke({"messages": [("human", user_query)]}, config=config)
+          
             response = agent.invoke({"messages": [{"role": "user", "content": user_query}]}, config=config)
-            print(f"[KPLC] ➤ {response['messages'][-1].content}\n")
+            print(f"[KPLC] ➤ {response['messages'][-1].content}")
+            
+            
+
 
             
         except KeyboardInterrupt:
             print("\n👋 Chat ended.")
             break
         except Exception as e:
-            print(f"\n Error: {str(e)}")
+            print(f"\nError: {str(e)}")
+
 
 # Run the application
 if __name__ == "__main__":
     run_kplc_chat()
-
