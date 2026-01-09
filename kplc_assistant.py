@@ -30,7 +30,7 @@ if model_provider == 'openai':
     model_name = "gpt-4o-mini"   
     
 elif model_provider == 'google_genai':
-    api_key = st.secrets.get("google_api_key") or os.getenv('google_api_key')
+    api_key = st.secrets.get("GOOGLE_API_KEY") or os.getenv('GOOGLE_API_KEY')
     if not api_key:
         st.error(" Missing Google API Key! Add to Streamlit Cloud Secrets or .env file.")
         st.stop()
