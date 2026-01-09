@@ -41,7 +41,7 @@ else:
     st.stop()
 
 # Validate Tavily (always required)
-TAVILY_API_KEY  = st.secrets.get("TAVILY_API_KEY ") or os.getenv("TAVILY_API_KEY ")
+TAVILY_API_KEY  = st.secrets.get("TAVILY_API_KEY") or os.getenv("TAVILY_API_KEY")
 if not TAVILY_API_KEY :
     st.error("Missing tavily_api_key! Add to Streamlit Cloud Secrets or .env file.")
     st.stop()
@@ -57,7 +57,7 @@ model = init_chat_model(
 
 # Initialize search tool (KPLC domain only)
 search_tool = TavilySearch(
-    tavily_api_key=TAVILY_API_KEY, 
+    # tavily_api_key=TAVILY_API_KEY, 
     max_results=5,
     topic="general", 
     include_domains=['kplc.co.ke'],
