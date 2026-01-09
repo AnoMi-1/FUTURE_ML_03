@@ -96,8 +96,6 @@ User Query → Streamlit UI → LangChain Agent → [RAG Tool | Tavily Search] �
 3. Commit changes (`git commit -m 'Add amazing feature'`)
 4. Push & PR!
 
-## 📄 **License**
-MIT License - see [LICENSE](LICENSE) © 2026
 
 ## 🛠️ **Deployment**
 - [Heroku](docs/DEPLOYMENT.md#heroku)
@@ -111,45 +109,5 @@ MIT License - see [LICENSE](LICENSE) © 2026
 
 
 
-***
 
-## 📋 **docs/DEPLOYMENT.md**
-```markdown
-# 🚀 Deployment Guide
 
-## Heroku
-```bash
-heroku create kplc-assistant
-heroku config:set GOOGLE_API_KEY=$GOOGLE_API_KEY
-heroku config:set TAVILY_API_KEY=$TAVILY_API_KEY
-git push heroku main
-```
-
-## Railway
-```
-1. Connect GitHub repo
-2. Add env vars: GOOGLE_API_KEY, TAVILY_API_KEY
-3. Deploy → https://railway.app
-```
-
-## Docker
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-EXPOSE 8501
-CMD ["streamlit", "run", "streamlit_kplc_app.py", "--server.port=8501"]
-```
-```
-
-***
-
-## 🎯 **Final Steps**
-1. **Create GitHub repo**: `kplc-assistant`
-2. **Upload ALL files** above + your `kplc_assistant.py` & `streamlit_kplc_app.py`
-3. **Replace `YOUR_USERNAME`** in README links
-4. **Commit**: `git add . && git commit -m "🎉 Initial KPLC Assistant"`
-5. **Push**: `git push origin main`
-
-**Professional repo ready for stars, forks, and deployment!** 🚀🎉
