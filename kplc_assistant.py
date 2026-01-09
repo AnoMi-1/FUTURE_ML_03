@@ -23,7 +23,7 @@ model_provider = st.secrets.get("model_provider", os.getenv('model_provider', 'o
 
 # Get API key based on provider (st.secrets OR os.getenv fallback)
 if model_provider == 'openai':
-    api_key = st.secrets.get("openai_api_key") or os.getenv('openai_api_key')
+    api_key = st.secrets.get("OPEN_API_KEY") or os.getenv('OPEN_API_KEY')
     if not api_key:
         st.error(" Missing OpenAI API Key! Add to Streamlit Cloud Secrets or .env file.")
         st.stop()
