@@ -5,7 +5,6 @@ __pycache__/
 *.so
 .Python
 venv/
-kplc_env/
 .env
 
 # ChromaDB
@@ -22,6 +21,6 @@ chroma_langchain_db/
 .DS_Store
 Thumbs.db
 
-# PDFs (don't commit sensitive docs)
+# PDFs 
 kplc_document.pdf
 *.pdf
