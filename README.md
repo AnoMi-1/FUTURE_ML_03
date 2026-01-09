@@ -1,5 +1,3 @@
-You're right! Here's the **clean README.md content only** - copy-paste ready:
-
 ## 📄 **README.md**
 ```markdown
 # 🔌 KPLC Assistant
