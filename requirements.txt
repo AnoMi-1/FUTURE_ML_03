@@ -7,3 +7,5 @@ langchain_text_splitters==1.1.0
 langgraph==1.0.5
 python-dotenv==1.2.1
 streamlit==1.52.2
+langchain_openai==1.1.7
+langchain_google_genai==4.1.3
