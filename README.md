@@ -1,21 +1,4 @@
-# 🏗️ **Complete Professional GitHub Repo Setup**
-
-## 📁 **Repository Structure**
-```
-kplc-assistant/
-├── README.md                 # Main landing page
-├── LICENSE                   # MIT License
-├── .gitignore                 
-├── requirements.txt          # Dependencies
-├── .env                      # API keys template
-├── kplc_assistant.py         # Core RAG agent  
-├── streamlit_kplc_app.py     # Web UI
-├── kplc_document.pdf         # Sample data 
-└── docs/
-    └── DEPLOYMENT.md         # Production guide
-```
-
-***
+You're right! Here's the **clean README.md content only** - copy-paste ready:
 
 ## 📄 **README.md**
 ```markdown
@@ -51,7 +34,7 @@ pip install -r requirements.txt
 
 ### 2. Configure API Keys
 ```bash
-cp .env .env
+cp .env.example .env
 # Edit .env:
 # GOOGLE_API_KEY=your_key
 # TAVILY_API_KEY=your_key
@@ -96,6 +79,8 @@ User Query → Streamlit UI → LangChain Agent → [RAG Tool | Tavily Search] �
 3. Commit changes (`git commit -m 'Add amazing feature'`)
 4. Push & PR!
 
+## 📄 **License**
+MIT License - see [LICENSE](LICENSE) © 2026
 
 ## 🛠️ **Deployment**
 - [Heroku](docs/DEPLOYMENT.md#heroku)
@@ -105,9 +90,6 @@ User Query → Streamlit UI → LangChain Agent → [RAG Tool | Tavily Search] �
 
 ---
 
-
-
-
-
-
+**Built with ❤️ for KPLC customers** | [Open Issue](https://github.com/AnoMi-1/FUTURE_ML_03/issues)
+```
 
