@@ -57,8 +57,9 @@ model = init_chat_model(
 
 # Initialize search tool (KPLC domain only)
 search_tool = TavilySearch(
+    tavily_api_key=TAVILY_API_KEY, 
     max_results=5,
-    topic="general",
+    topic="general", 
     include_domains=['kplc.co.ke'],
 )
 
